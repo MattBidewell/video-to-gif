@@ -46,14 +46,14 @@ function App() {
             await ffmpeg.run("-i", "upload.ogg", "-af", "silencedetect=noise=-30dB:d=0.5", "-f", "null", "dummy.txt");
             let index = 0;
             const files = [];
-            console.log(silenceLogs)
+            // console.log(silenceLogs)
 
             // needs to be a sync
             for (let[index,silenceLog] of silenceLogs.entries()) {
                 // if its an end log then use it to process the trim
-                console.log(index, silenceLog)
+                // console.log(index, silenceLog)
                 if (silenceLog.includes("end") && index !== silenceLogs.length - 1) {
-                    console.log(silenceLog);
+                    // console.log(silenceLog);
                     //  ffmpeg -ss <silence_end - 0.25> -t <next_silence_start - silence_end + 2 * 0.25> -i input.mov word-N.mov
                     const silenceEnd = extractSilenceEnd(silenceLog);
                     const nextSilenceStart = extractNextSilenceStart(silenceEnd);
@@ -67,7 +67,7 @@ function App() {
                     // const startTime1 = "00:00:08.5859"; // 8.58596 -t 1.8020399999999999
                     // const durationTime1 = "00:00:01.8020";
 
-                    console.log("command", `ffmpeg -ss ${formattedStart} -t ${formatedDurationTime} -i upload.ogg ${index}.ogg`);
+                    // console.log("command", `ffmpeg -ss ${formattedStart} -t ${formatedDurationTime} -i upload.ogg ${index}.ogg`);
                     await ffmpeg.run("-i", "upload.ogg", "-ss", formattedStart, "-t", formatedDurationTime, `${index}.ogg`);
 
                     const data = ffmpeg.FS("readFile", `${index}.ogg`);
@@ -75,10 +75,10 @@ function App() {
                     files.push(url);
                     index++;
                 }
-                setAudio(files);
             }
             index = 0;
-            console.log(files);
+            console.log("jobDone");
+            setAudio(files);
         } catch (err) {
             console.error(err);
         }
@@ -93,7 +93,8 @@ function App() {
             <button onClick={seperateAudio}>Seperate Audio</button>
 
             {audio && audio.map((value) => {
-                <img src={value} width="250" />
+                console.log(value);
+                <audio controls width="250" src={value}></audio>
             })}
         </div>
     ) : (<p>Loading...</p>);
